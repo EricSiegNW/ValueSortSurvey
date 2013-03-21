@@ -1,0 +1,22 @@
+﻿.sliderwrapper {
+    width: 200px;
+    display: inline-block;
+}
+
+span.firstcolumn {
+    display: inline-block;
+    word-spacing: 0;
+    width: 100px;
+}
+
+span.secondcolumn {
+    display: inline-block;
+    word-spacing: 0;
+    width: 200px;
+}
+
+.amount {
+    border: 0;
+    color: #f6931f;
+    font-weight: bold;
+}

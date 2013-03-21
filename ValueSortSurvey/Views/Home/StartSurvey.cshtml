@@ -1,0 +1,95 @@
+﻿@model ValueSortSurvey.ViewModels.SurveyViewModel
+
+@{
+    ViewBag.Title = "StartSurvey";
+}
+<link href="~/Content/ValueSort.css" rel="stylesheet" />
+<script type="text/javascript">
+    $(function () {
+        // Todo: can this be moved out so it isn't as magic stringy?
+        var sliderValues = {
+            0: "Very Important",
+            50: "Somewhat Important",
+            100: "Not Important"
+        };
+
+        $('.slider').each(function (index, element) {
+            var amountName = element.id.replace('Slider', '') + 'Amount';
+            $('#' + element.id).slider({
+                value: 50,
+                min: 0,
+                max: 100,
+                step: 50,
+                slide: function (event, ui) {
+                    $('#' + amountName).val(sliderValues[ui.value]);
+                }
+            });
+        });
+
+        // This is here so that the initial value is populated. Otherwise the label shows
+        // nothing until the user interacts with the slider in some fashion.
+        $('.amount').each(function (index, element) {
+            var sliderName = element.id.replace('Amount', '') + 'Slider';
+            $('#' + element.id).val(sliderValues[$('#' + sliderName).slider("value")]);
+        });
+
+        //// Grab the key/value pairs for all the sliders and serialize the results
+        //$('#MainSubmitButton').click(function (event) {
+        //    debugger;
+        //    event.preventDefault();
+        //    var result = new Array();
+        //    $('.amount').each(function (index, element) {
+        //        var dict = new Object();
+        //        dict.key = element.id.replace('Amount', '');
+        //        dict.value = $('#' + element.id).val();
+        //        result[index] = dict;
+        //    });
+        //    var serializedData = JSON.stringify(result);
+        //    alert(serializedData);
+        //});
+
+        // Validate the submission before it is sent.
+        $('#MainSubmitButton').click(function (event) {
+            //debugger;
+            var minimumItems = @Model.MinSelectedItems;
+            var maximumItems = @Model.MaxSelectedItems;
+            var alertString = "Please put between " + minimumItems + " and " + maximumItems + " values in the Very Important Category.";
+            var amountOfVeryImportant = 0;
+            $('.amount').each(function (index, element) {
+                if ($('#' + element.id).val() == "Very Important")
+                    amountOfVeryImportant++;
+            });
+            if ((amountOfVeryImportant < minimumItems ) || (amountOfVeryImportant > maximumItems)) {
+                alert(alertString);
+                return false;
+            }
+        });
+    });
+
+
+</script>
+
+
+<h2>Start Survey</h2>
+
+<form id="mainForm" action="/Home/PostSurvey" method="post">
+    @foreach (var dict in @Model.AllValues) {
+        var textboxName = dict.Key + "Amount";
+        var sliderName = dict.Key + "Slider";
+        <span class="firstcolumn">
+            <label for="@textboxName">@dict.Key:</label>
+        </span>
+        <span class="secondcolumn">
+            <input type="text" id="@textboxName" class="amount" name="@dict.Key" title="@dict.Value" />
+        </span>
+        <div class="sliderwrapper">
+            <div id="@sliderName" title="@dict.Value" class="slider"></div>
+        </div>
+        <br />
+        
+    }
+    <input type="hidden" name="UserId" value="@Model.UserID" />
+    <input type="submit" id="MainSubmitButton" value="register" />
+    
+</form>
+
